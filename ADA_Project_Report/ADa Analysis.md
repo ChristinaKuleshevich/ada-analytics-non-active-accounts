@@ -60,7 +60,7 @@ According to the data the amount of all accounts analyzed is 1 834 953, among th
 
 
 
-!\[Registered and Unregistered Accounts](./ADA\_Project\_Report/Regist\_Unregist\_Accounts\_1.png)
+![Registered and Unregistered Accounts](/ADA_Project_Report/Regist_Unregist_Accounts_1.png)
 
 
 
