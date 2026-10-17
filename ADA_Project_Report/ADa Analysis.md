@@ -1,12 +1,12 @@
-\# Potentially Lost ADA: Analyzing and Predicting Value Locked in Potentially Inactive Cardano Accounts
+# Potentially Lost ADA: Analyzing and Predicting Value Locked in Potentially Inactive Cardano Accounts
 
-\### Author: Christina Kuleshevich
+### Author: Christina Kuleshevich
 
-\### Date: 10/30/2026
+### Date: 10/30/2026
 
 
 
-\## Introduction
+## Introduction
 
 
 
@@ -36,7 +36,7 @@ The goal of this research is to identify potentially inactive Cardano accounts b
 
 
 
-\## Data
+## Data
 
 
 
@@ -52,7 +52,7 @@ For convenience I changed slot numbers that in seconds to real date. Starting sl
 
 
 
-\## Calculate number of Registered and Unregistered Accounts
+## Calculate number of Registered and Unregistered Accounts
 
 
 
