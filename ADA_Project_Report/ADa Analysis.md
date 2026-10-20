@@ -71,7 +71,7 @@ How much ADA do individual accounts actually hold? To answer on this question I 
 
 The distribution is strongly right-skewed on the original ADA scale, meaning account sizes vary enormously. 
 
-![Distribution](/ADA_Project_Report/Disrtibution.png)
+![Distribution](/ADA_Project_Report/Distribution.png)
 
 For this distribution I used log scale. 
 
@@ -113,7 +113,7 @@ One more important fact, that we interested only in Accounts with not 0 ADA Tota
 
 The formula of APY that used Cordano is very difficult and I don't have enough of data to calculate the growth of ADA using it. So I pretend to have a APY equal 1.5%, 2%, 2.5%, 3%.
 
-![Projected Growth of ADA](/ADA_Project_Report/Projected_growth.png)
+![Projected Growth of ADA](/ADA_Project_Report/Ptojected_growth_ADA.png)
 
 
 ## Calculate the number of potencially lost Accounts and the amount of potencially lost ADA
