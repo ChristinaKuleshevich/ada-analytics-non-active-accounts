@@ -44,7 +44,7 @@ This study uses the lostada dataset, which contains information about Cardano AD
 
 
 
-!\[Summary of data](./ADA\_Project\_Report/Summary\_of\_data.png)
+![Summary of data](/ADA_Project_Report/Summary_of_data.png)
 
 
 
@@ -64,9 +64,9 @@ According to the data the amount of all accounts analyzed is 1 834 953, among th
 
 
 
-!\[Registered and Unregistered Accounts](./ADA\_Project\_Report/Regist\_Unregist\_Accounts\_2.png)
+![Registered and Unregistered Accounts](/ADA_Project_Report/Regist_Unregist_Accounts_2.png)
 
 
 
-!\[Registered and Unregistered Accounts](./ADA\_Project\_Report/Regist\_Unregist\_Accounts\_3.png)
+![Registered and Unregistered Accounts](/ADA_Project_Report/Regist_Unregist_Accounts_3.png)
 
