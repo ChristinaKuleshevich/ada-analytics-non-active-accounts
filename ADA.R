@@ -488,10 +488,11 @@ ggplot(Stake_accounts,aes(x = month_date,y = avg_stake_per_account)) +
     panel.grid.major.x = element_blank(),
     panel.grid.minor = element_blank())
 
-# ---------------------------------------------------
-#11.HOW MUCH ADA DO INDIVIDUAL ACCOUNTS ACTUALLY HOLD
-# ---------------------------------------------------
+# -------------------------------------
+#11. DISTRIBUTION OF ADA AMONG ACCOUNTS
+# -------------------------------------
 
+# How much ADA do individual accounts actually hold
 # Plot of distribution 
 ggplot(ada_with0stake,aes(x = TotalStake)) +
   geom_histogram(bins = 50,fill = "#66C2A5",color = "white") +
@@ -500,9 +501,15 @@ ggplot(ada_with0stake,aes(x = TotalStake)) +
     title = "Distribution of ADA Stake Across Accounts",
     subtitle = "Stake distribution among registered accounts",
     x = "ADA Stake per Account",
-    y = "Number of Accounts"
-  ) +
-  theme_minimal(base_size = 12)
+    y = "Number of Accounts") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(size = 16,face = "bold"),
+        plot.subtitle = element_text(
+          size = 11,
+          color = "gray40"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank())
+
 
 # the huge bar around zero means that a very large number of accounts have zero
 # or very small stake, while a relatively small number have much larger stakes.
@@ -594,7 +601,7 @@ stake_groups_summary
 ggplot(stake_groups_summary,
   aes(x = stake_group,y = accounts)) +
   geom_col(fill = "#66C2A5") +
-  geom_text(aes(label = scales::percent(share_accounts, accuracy = 0.1)),
+  geom_text(aes(label = scales::percent(share_accounts, accuracy = 0.0001)),
     vjust = -0.4,
     size = 3.2,
     fontface = "bold") +
@@ -651,7 +658,7 @@ ggplot(stake_groups_plot,
   ) +
   geom_text(
     aes(
-      label = scales::percent(share, accuracy = 0.1)
+      label = scales::percent(share, accuracy = 0.0001)
     ),
     position = position_dodge(width = 0.75),
     vjust = -0.4,
@@ -766,7 +773,7 @@ ggplot(delegation_per_month,aes(x = month_date,y = num_delegating_accounts)) +
   geom_text(data = latest_month,aes(label = paste0("Latest: ",comma(num_delegating_accounts))),
     color = "#FC8D62",
     fontface = "bold",
-    size = 3.8,
+    size = 3,
     vjust = -1.2) +
   labs(
     title = "Accounts by Last Recorded Delegation Date",
@@ -801,6 +808,7 @@ ada_with_activestake <- ada_with_activestake |>
     ActiveStake = ada_with_activestake$laCurrentStake + ada_with_activestake$laCurrentBalance
   )
 current_delegated_ada <- sum(ada_with_activestake$ActiveStake, na.rm = TRUE) #sum of Active ADA Stake that will growth in the future 
+current_delegated_ada
 nrow(ada_with_activestake) #number of delegated accounts
 
 # -------------------------------------------------------------
@@ -897,9 +905,9 @@ growth_projection |>
   mutate(
     projected_ada_billions = projected_ada / 1e9)
 
-# -------------------------------------------------------------------------------
-#16. CALCULATE THE NUMBER OF POTENCIALLY LOST ACCAUNTS AND THE AMOUNT OF LOST ADA
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------
+#16. CALCULATE THE NUMBER OF POTENCIALLY LOST ACCAUNTS AND LOST ADA
+# ------------------------------------------------------------------
 
 # Chose like evidence these 3 columns RegisteredAtDatetime, LastWithdrawalDate, LastDelegationDate
 # 3 years non activity
@@ -939,7 +947,7 @@ summary_lost_accounts_5col3years <- lost_accounts_5col3years |>
 print(summary_lost_accounts_5col3years)
 
 # --------------------------------------------------------------------------
-#17. SHOW THE NUMBER OF POTENCIALLY LOST ACCAUNTS AND THE AMOUNT OF LOST ADA
+#17. SHOW THE NUMBER OF POTENCIALLY INACTIVE ACCAUNTS AND THE AMOUNT OF ADA
 # --------------------------------------------------------------------------
 
 # Create comparison table
@@ -1010,9 +1018,9 @@ ggplot(
     panel.grid.minor = element_blank(),
     legend.position = "top")
 
-# ---------------------------------------------------
-#18.SHOW THE GROWTH OF POTENCIALLY LOST ADA TILL 2030
-# ---------------------------------------------------
+# --------------------------------------------------------
+#18.SHOW THE GROWTH OF POTENCIALLY INACTIVE ADA TILL 2030
+# --------------------------------------------------------
 
 # Use total number lost accounts and sum of lost ADA stake according to 5 columns as evidance
 current_lost_ada <- summary_lost_accounts_5col3years$total_lost_stake
@@ -1047,7 +1055,7 @@ ggplot(growth_projection_lost_ada,
       "2.5% APY" = "#FC8D62",
       "3% APY" = "#8DA0CB")) +
   labs(
-    title = "Projected Growth of ADA in Potencially Lost Accounts",
+    title = "Projected Growth of ADA in Potencially Inactive Accounts",
     subtitle = "Illustrative projections under 1.5%–3% annual staking return assumptions",
     x = "Year",
     y = "Projected ADA",
@@ -1060,15 +1068,16 @@ ggplot(growth_projection_lost_ada,
     panel.grid.minor = element_blank(),
     legend.position = "top")
 
-growth_projection_lost_ada |>
+growth_projection_lost_ada_table <- growth_projection_lost_ada |>
   filter(year == 2030) |>
   select(scenario, projected_lostada) |>
   mutate(
     projected_lostada_billions = projected_lostada / 1e9)
+growth_projection_lost_ada_table
 
-# ---------------------------------------------------------------------------
-#17.GLM LOGISTIC REGRESSION (for prediction of potentially inactive accounts)
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#17. GLM LOGISTIC REGRESSION (for prediction of potentially inactive accounts)
+# ----------------------------------------------------------------------------
 
 # Prepare the data
 glm_data_for_ada <- ada_with0stake |>
@@ -1234,17 +1243,102 @@ ada_test_data <- test_data |>
     predicted_class = if_else(predicted_probability >= 0.5, 1, 0))
 
 # Confusion matrix and accuracy
-confusionMatrix(
+cm<- confusionMatrix(
   factor(ada_test_data$predicted_class, levels = c(0, 1)),
   factor(ada_test_data$flag_for_glm, levels = c(0, 1)),
   positive = "1")
 
+# Prepare data for visualization
+cm_df <- as.data.frame(cm$table) %>%
+  mutate(
+    Prediction = factor(
+      Prediction,
+      levels = c("0", "1"),
+      labels = c("Active", "Potentially inactive")),
+    Reference = factor(
+      Reference,
+      levels = c("0", "1"),
+      labels = c("Active", "Potentially inactive")),
+    Result = case_when(
+      Prediction == "Active" & Reference == "Active" ~ "TN",
+      Prediction == "Active" & Reference == "Potentially inactive" ~ "FN",
+      Prediction == "Potentially inactive" & Reference == "Active" ~ "FP",
+      TRUE ~ "TP"))
+
+# Plot
+ggplot(cm_df, aes(x = Reference, y = Prediction, fill = Freq)) +
+  geom_tile(color = "white", linewidth = 1.2) +
+  geom_text(
+    aes(label = paste0(Result, "\n", comma(Freq))),
+    size = 5,
+    fontface = "bold") +
+  scale_fill_gradient(
+    low = "white",
+    high = "#66C2A5",
+    labels = comma) +
+  labs(
+    title = "Confusion Matrix",
+    subtitle = "Logistic regression | Classification threshold = 0.5",
+    x = "Actual Class",
+    y = "Predicted Class",
+    fill = "Accounts") +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 11, color = "gray40"),
+    panel.grid = element_blank())
+
+# ROC-curve
 roc_curve <- roc(
   ada_test_data$flag_for_glm,
   ada_test_data$predicted_probability
 )
 auc(roc_curve)
 summary(ada_test_data$predicted_probability)
+
+auc_value <- as.numeric(auc(roc_curve))
+
+# Convert ROC coordinates to a data frame
+roc_df <- data.frame(
+  specificity = roc_curve$specificities,
+  sensitivity = roc_curve$sensitivities) %>%
+  mutate(
+    false_positive_rate = 1 - specificity)
+
+# Plot ROC curve
+ggplot(roc_df, aes(x = false_positive_rate, y = sensitivity)) +
+  geom_line(color = "#66C2A5", linewidth = 1.2) +
+  geom_abline(
+    intercept = 0,
+    slope = 1,
+    linetype = "dashed",
+    color = "gray60") +
+  annotate(
+    "text",
+    x = 0.65,
+    y = 0.20,
+    label = paste0("AUC = ", round(auc_value, 3)),
+    fontface = "bold",
+    size = 5) +
+  scale_x_continuous(
+    labels = scales::percent,
+    limits = c(0, 1),
+    breaks = seq(0, 1, 0.2)) +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, 1),
+    breaks = seq(0, 1, 0.2)) +
+  coord_equal() +
+  labs(
+    title = "ROC Curve: Logistic Regression",
+    subtitle = "Predicting potentially inactive Cardano accounts",
+    x = "False Positive Rate (1 − Specificity)",
+    y = "True Positive Rate (Sensitivity)") +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 11, color = "gray40"),
+    panel.grid.minor = element_blank())
 
 # -------------------------------------
 #18. CREATE SUMMERY TABLES FOR POWER BI
@@ -1519,5 +1613,15 @@ write.csv(
 write.csv(
   Gini_Summary,
   file.path(powerbi_folder, "Gini_Summary.csv"),
+  row.names = FALSE)
+
+write.csv(
+  delegation_summary,
+  file.path(powerbi_folder, "Delegation_Summary.csv"),
+  row.names = FALSE)
+
+write.csv(
+  growth_projection_lost_ada_table,
+  file.path(powerbi_folder, "Projection_lost_ADA.csv"),
   row.names = FALSE)
 
