@@ -43,7 +43,7 @@ According to the data the amount of all accounts analyzed is 1 834 953, among th
 
 ## Calculate current total Stake of ADA
 
-In order to calculate current total Stake of ADA I removed all Unregistered Accounts and sum two columns from the data CurrentBalance and CurrentStake. The sum is 22153020090 ADA on 1449584 Accounts.
+In order to calculate current total Stake of ADA I removed all Unregistered Accounts and sum two columns from the data CurrentBalance and CurrentStake. The sum is 22 153 020 090 ADA on 1 449 584 Accounts.
 
 ![Cumulative ADA Stake](/ADA_Project_Report/Cumulative_ADA.png)  
 
